@@ -1,4 +1,6 @@
-# pi-notify
+# pi-notify-done
+
+Built on top of https://github.com/ferologics/pi-notify 
 
 A [Pi](https://www.npmjs.com/package/@earendil-works/pi-coding-agent) extension that sends a native desktop notification when the agent finishes and is waiting for input.
 
@@ -22,15 +24,11 @@ A [Pi](https://www.npmjs.com/package/@earendil-works/pi-coding-agent) extension 
 
 ```tmux
 set -g allow-passthrough on
+set -g status-interval 1
+set -g status-right '#(~/.config/tmux/pi-notify.sh)' 
 ```
 
 ## Install
-
-```bash
-pi install npm:pi-notify
-```
-
-Or via git:
 
 ```bash
 pi install git:github.com/ferologics/pi-notify
@@ -86,7 +84,7 @@ OSC = Operating System Command, part of ANSI escape sequences. Terminals use the
 
 ## Known Limitations
 
-- **tmux** works only with passthrough enabled (`set -g allow-passthrough on`).
+- **tmux** works only when the settings listed for tmux above are in the `~/.tmux.conf` file .
 - **zellij/screen** are still unsupported for OSC notifications.
 
 ## License
