@@ -153,6 +153,20 @@ function notifyWindows(title: string, body: string): void {
   execFile("powershell.exe", ["-NoProfile", "-Command", windowsToastScript(title, body)]);
 }
 
+function notifyTerminalNotifier(title: string, body: string): void {
+  const { execFile } = require("node:child_process");
+  execFile("terminal-notifier", [
+    "-title", title,
+    "-message", body,
+    "-sound", "default",
+    "-group", "pi-notify",
+  ], (error: Error | null) => {
+    if (error) {
+      console.error(`pi-notify: terminal-notifier failed: ${error.message}`);
+    }
+  });
+}
+
 function runSoundHook(): void {
   const command = process.env.PI_NOTIFY_SOUND_CMD?.trim();
   if (!command) return;
@@ -164,7 +178,9 @@ function runSoundHook(): void {
 
 function notifyDirect(title: string, body: string): void {
   const isIterm2 = process.env.TERM_PROGRAM === "iTerm.app" || Boolean(process.env.ITERM_SESSION_ID);
-  if (process.env.WT_SESSION) {
+  if (process.platform === "darwin") {
+    notifyTerminalNotifier(title, body);
+  } else if (process.env.WT_SESSION) {
     notifyWindows(title, body);
   } else if (process.env.KITTY_WINDOW_ID) {
     notifyOSC99(title, body);
@@ -180,28 +196,30 @@ function notifyDirect(title: string, body: string): void {
 
 export default function (pi: ExtensionAPI) {
   const inTmux = Boolean(process.env.TMUX);
+  const useTmuxBridge = inTmux && process.platform !== "darwin";
 
-  if (inTmux) {
+  if (useTmuxBridge) {
     ensureScript();
   }
 
   pi.on("agent_start", async () => {
-    if (inTmux) writeState("working");
+    if (useTmuxBridge) writeState("working");
   });
 
   pi.on("agent_end", async () => {
-    if (inTmux) {
+    if (useTmuxBridge) {
       writeState("ready", getTmuxWindow());
     } else {
-      notifyDirect("Pi", "Ready for input");
+      const context = inTmux ? getTmuxWindow() : "";
+      notifyDirect(context ? `Pi ${context}` : "Pi", "Ready for input");
     }
   });
 
   pi.on("session_shutdown", () => {
-    if (inTmux) removeStatus();
+    if (useTmuxBridge) removeStatus();
   });
 
   process.on("exit", () => {
-    if (inTmux) removeStatus();
+    if (useTmuxBridge) removeStatus();
   });
 }
