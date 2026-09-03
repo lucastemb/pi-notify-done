@@ -86,6 +86,8 @@ OSC = Operating System Command, part of ANSI escape sequences. Terminals use the
 
 - **tmux** works only when the settings listed for tmux above are in the `~/.tmux.conf` file .
 - **zellij/screen** are still unsupported for OSC notifications.
+- `Ghostty` suppresses notifications when the window is active. (As seen [here](https://github.com/ghostty-org/ghostty/blob/1c2db85aa41c7d929cb23b408229e297dce2758a/macos/Sources/Ghostty/Ghostty.App.swift#L432-L439). To work around this we use `terminal-notifier` instead for MacOS)
+- `terminal-notifier` only works - for the time being - for ARM based architectures on Mac
 
 ## License
 
