@@ -31,7 +31,7 @@ set -g status-right '#(~/.config/tmux/pi-notify.sh)'
 ## Install
 
 ```bash
-pi install git:github.com/ferologics/pi-notify
+pi install git:github.com/lucastemb/pi-notify-done
 ```
 
 Restart Pi.
